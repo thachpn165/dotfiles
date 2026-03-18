@@ -199,13 +199,22 @@ Sau đó mở `Karabiner-Elements` để app reload config, hoặc thoát/mở l
 
 ### Keymap hiện tại
 
-- `Caps Lock` được dùng làm `Hyper` (`Cmd+Ctrl+Option+Shift`).
+- `simple_modifications` đang hoán đổi 2 phím vật lý: `Caps Lock -> Left Control` và `Left Control -> Caps Lock`.
+- Vì có bước hoán đổi này, phím `Left Control` vật lý mới là phím kích hoạt `Hyper` (`Cmd+Ctrl+Option+Shift`) trong các `complex_modifications`.
+- Phím `Caps Lock` vật lý hiện hoạt động như `Left Control`.
+- Hiểu theo cách bấm thực tế:
+  - Bấm phím `Left Control` vật lý sẽ được Karabiner nhìn như `caps_lock`.
+  - Từ đó rule `caps_lock -> Hyper` mới được kích hoạt.
+  - Bấm phím `Caps Lock` vật lý thì hệ thống nhận như `Left Control` bình thường.
+- Ví dụ:
+  - `Left Control + h` vật lý sẽ thành `Hyper + h`, sau đó map ra `Left Arrow`.
+  - `Left Control + j/k/l` vật lý sẽ lần lượt thành `Down/Up/Right Arrow`.
+  - `Caps Lock` vật lý không phải là phím `Hyper` trong cấu hình hiện tại.
 - `Hyper + h/j/k/l` thành mũi tên trái/xuống/lên/phải.
 - `Hyper + u/d` thành `Page Up` / `Page Down`.
 - `Hyper + a/e` thành `Home` / `End`.
 - `Hyper + w/b` chọn theo từ sang phải / trái.
 - `Hyper + Space` clear vùng chọn bằng cách di chuyển sang phải một ký tự.
-- Có `simple_modifications` hoán đổi `Caps Lock` và `Left Control` theo đúng file gốc đang dùng.
 
 ---
 
