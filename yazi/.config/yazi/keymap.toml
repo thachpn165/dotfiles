@@ -1,0 +1,9 @@
+"$schema" = "https://yazi-rs.github.io/schemas/keymap.json"
+
+[mgr]
+prepend_keymap = [
+  { on = "<C-p>", run = "plugin fzf", desc = "Find file in project (fzf)" },
+  { on = ["g", "p"], run = "plugin fzf", desc = "Find file in project (fzf)" },
+  { on = "F", run = "search --via=fd", desc = "Search files by name via fd" },
+  { on = "E", run = "open --interactive", desc = "Open selected files with..." },
+]

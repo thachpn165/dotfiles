@@ -1,0 +1,32 @@
+{
+  // Minimal, fast "welcome" view for new terminal sessions.
+  // Keep it portable (macOS + Linux).
+  "logo": {
+    "type": "auto",
+    "padding": {
+      "top": 1,
+      "left": 1
+    }
+  },
+  "display": {
+    "separator": "  "
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "host",
+    "kernel",
+    "uptime",
+    "de",
+    "separator",
+    "cpu",
+    "gpu",
+    "memory",
+    "disk",
+    "battery",
+    "localip",
+    "break",
+    "colors"
+  ]
+}

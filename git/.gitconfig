@@ -1,0 +1,24 @@
+[core]
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  # Readability defaults
+  side-by-side = true
+  line-numbers = true
+  navigate = true
+
+  # Keep syntax highlighting, but soften +/- backgrounds so code stays readable.
+  plus-style = "syntax #24312c"
+  plus-emph-style = "syntax #2f4038"
+  minus-style = "syntax #31242a"
+  minus-emph-style = "syntax #403039"
+
+  # Keep unchanged lines clean
+  zero-style = "syntax"
+
+  # Misc
+  whitespace-error-style = "22 reverse"
+
