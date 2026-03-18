@@ -55,7 +55,7 @@ Repo này không chỉ có `nvim` và `wezterm`, mà là một bộ workflow tư
 bash <(curl -fsSL https://raw.githubusercontent.com/thachpn165/dotfiles/main/install.sh)
 ```
 
-Script này hiện hỗ trợ `macOS` và `Linux`.
+README này hiện tập trung cho `macOS`.
 
 ## <a id="script-cai-nhanh-se-tu-lam-gi"></a>Script cài nhanh sẽ tự làm gì?
 
@@ -64,7 +64,7 @@ Nếu máy chưa có, `install.sh` sẽ tự xử lý các phần sau:
 - Cài [Homebrew](https://brew.sh/).
 - Cài các CLI/common dependencies: `bat`, `eza`, `fastfetch`, `fzf`, `git`, `git-delta`, `glow`, `jq`, `neovim`, `ripgrep`, `stow`, `yazi`, `zoxide`, `zsh`.
 - Cài [Oh My Zsh](https://ohmyz.sh/) nhưng giữ nguyên `~/.zshrc` để dùng file được stow từ repo này.
-- Trên macOS: cài thêm `pngpaste`, [WezTerm](https://wezterm.org/), [Hammerspoon](https://www.hammerspoon.org/), [Karabiner-Elements](https://karabiner-elements.pqrs.org/), [`im-select`](https://github.com/daipeihust/im-select).
+- Cài thêm `pngpaste`, [WezTerm](https://wezterm.org/), [Hammerspoon](https://www.hammerspoon.org/), [Karabiner-Elements](https://karabiner-elements.pqrs.org/), [`im-select`](https://github.com/daipeihust/im-select).
 - Clone repo vào `~/dotfiles` nếu chưa có; nếu đã có thì `git pull`.
 - Tự init/update git submodules.
 - Backup config cũ sang thư mục dạng `~/.dotfiles-backup-YYYYMMDDHHMMSS/` trước khi stow nếu phát hiện file/folder thật đang tồn tại.
@@ -115,7 +115,7 @@ stow karabiner
 - `bash`
 - `curl`
 - Kết nối Internet
-- Hệ điều hành `macOS` hoặc `Linux`
+- Hệ điều hành `macOS`
 
 Nếu bạn không dùng `install.sh` mà muốn cài thủ công, các dependency chính của repo này là:
 
@@ -337,9 +337,7 @@ Note: Nếu bạn chưa biết thì phím `<leader>` trong nvim sẽ là phím `
 Mẹo dùng nhanh:
 
 - Muốn tạo `Projects/AntiWHMCS/code.md`: dùng `<leader>oN` -> chọn `Projects/AntiWHMCS` -> nhập `code`.
-- Paste image:
-  - macOS: cần `pngpaste`
-  - Linux: thường cần `wl-clipboard` hoặc `xclip`
+- Paste image: cần `pngpaste`
 
 Ghi chú:
 
@@ -466,7 +464,7 @@ Ghi chú:
 
 - Terminal context tự động kèm theo
 - Command được để trong menu (chọn số để gửi)
-- Trả lời copy vào clipboard nếu hệ thống có tool copy (macOS `pbcopy`, Linux `wl-copy`/`xclip`)
+- Trả lời copy vào clipboard qua `pbcopy`
 - Model: `gpt-4o-mini`
 
 ### <a id="cau-truc-config"></a>Cấu trúc config
