@@ -401,8 +401,24 @@ WezTerm là terminal chính: đẹp, nhanh, có workspace/session, và có vài 
 Nếu muốn đổi theme/font/opacity riêng mà không sửa repo:
 
 1. Copy `~/.config/wezterm/local.example.lua` thành `~/.config/wezterm/local.lua`
-2. Chỉnh các giá trị trong `local.lua`
-3. Save file, WezTerm sẽ tự reload config
+2. Vào danh sách built-in themes của WezTerm tại `https://wezterm.org/colorschemes/index.html`
+3. Chọn tên theme muốn dùng rồi sửa `config.color_scheme` trong `local.lua`
+4. Nếu đổi font thì nhớ dùng font đã cài trên máy
+5. Save file, WezTerm sẽ tự reload config
+
+Ví dụ:
+
+```lua
+local M = {}
+
+function M.apply(config)
+  config.color_scheme = "Calamity"
+end
+
+return M
+```
+
+Không cần tải theme repo ngoài nếu theme đó đã có sẵn trong danh sách chính thức của WezTerm.
 
 `local.lua` đã được ignore trong git, nên mỗi người có thể giữ cấu hình cá nhân riêng.
 

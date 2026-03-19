@@ -37,38 +37,40 @@ function M.apply(config)
     inactive_titlebar_bg = "#181825",
   }
 
-  config.colors = {
-    -- Improve text contrast on semi-transparent background.
-    foreground = "#e6e9ef",
-    background = "#1e1e2e",
-    -- Raise ANSI black/bright-black so dim/meta text is still readable.
-    ansi = { "#6c7086", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#cba6f7", "#94e2d5", "#bac2de" },
-    brights = { "#a6adc8", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#cba6f7", "#94e2d5", "#f2f5ff" },
-    tab_bar = {
-      background = "#1e1e2e",
-      active_tab = {
-        bg_color = "#cba6f7",
-        fg_color = "#1e1e2e",
-        intensity = "Bold",
-      },
-      inactive_tab = {
-        bg_color = "#313244",
-        fg_color = "#cdd6f4",
-      },
-      inactive_tab_hover = {
-        bg_color = "#45475a",
-        fg_color = "#cdd6f4",
-      },
-      new_tab = {
-        bg_color = "#313244",
-        fg_color = "#cdd6f4",
-      },
-      new_tab_hover = {
-        bg_color = "#45475a",
-        fg_color = "#cdd6f4",
-      },
-    },
-  }
+  -- Leave the scheme colors untouched so `local.lua` can override the theme
+  -- with `config.color_scheme = "..."` or a loaded scheme file.
+  -- config.colors = {
+  --   -- Improve text contrast on semi-transparent background.
+  --   foreground = "#e6e9ef",
+  --   background = "#1e1e2e",
+  --   -- Raise ANSI black/bright-black so dim/meta text is still readable.
+  --   ansi = { "#6c7086", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#cba6f7", "#94e2d5", "#bac2de" },
+  --   brights = { "#a6adc8", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#cba6f7", "#94e2d5", "#f2f5ff" },
+  --   tab_bar = {
+  --     background = "#1e1e2e",
+  --     active_tab = {
+  --       bg_color = "#cba6f7",
+  --       fg_color = "#1e1e2e",
+  --       intensity = "Bold",
+  --     },
+  --     inactive_tab = {
+  --       bg_color = "#313244",
+  --       fg_color = "#cdd6f4",
+  --     },
+  --     inactive_tab_hover = {
+  --       bg_color = "#45475a",
+  --       fg_color = "#cdd6f4",
+  --     },
+  --     new_tab = {
+  --       bg_color = "#313244",
+  --       fg_color = "#cdd6f4",
+  --     },
+  --     new_tab_hover = {
+  --       bg_color = "#45475a",
+  --       fg_color = "#cdd6f4",
+  --     },
+  --   },
+  -- }
 
   -- Keep non-focused panes readable when splitting windows.
   config.inactive_pane_hsb = {
