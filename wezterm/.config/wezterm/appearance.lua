@@ -29,12 +29,11 @@ function M.apply(config)
   config.hide_tab_bar_if_only_one_tab = false
   config.tab_max_width = 25
 
-  -- Catppuccin Mocha tab bar colors
+  -- Keep the tab bar font styling, but let the active color scheme control
+  -- the fancy tab bar colors so `local.lua` theme overrides propagate cleanly.
   config.window_frame = {
     font = require("wezterm").font("MesloLGS Nerd Font Mono", { weight = "Bold" }),
     font_size = 12.0,
-    active_titlebar_bg = "#1e1e2e",
-    inactive_titlebar_bg = "#181825",
   }
 
   -- Leave the scheme colors untouched so `local.lua` can override the theme

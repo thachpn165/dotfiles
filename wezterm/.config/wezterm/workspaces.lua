@@ -45,10 +45,63 @@ local function save_workspace_state(resurrect)
   return false, result
 end
 
+local function read_saved_workspace_name(file_path)
+  local f = io.open(file_path, "r")
+  if not f then
+    return nil
+  end
+
+  local content = f:read("*a")
+  f:close()
+
+  local ok, decoded = pcall(wezterm.json_parse, content)
+  if ok and decoded and decoded.workspace then
+    return decoded.workspace
+  end
+
+  return nil
+end
+
+local function remove_file(path)
+  local ok = os.remove(path)
+  if ok then
+    return true
+  end
+
+  local rm_ok = wezterm.run_child_process({ "rm", "-f", path })
+  return rm_ok
+end
+
 local function delete_saved_workspace_state(workspace_name)
-  local file_name = workspace_name:gsub("/", "+")
-  local file_path = string.format("%sworkspace/%s.json", state_dir, file_name)
-  os.remove(file_path)
+  local workspace_dir = state_dir .. "workspace"
+  local deleted = false
+  local candidates = {
+    string.format("%s/%s.json", workspace_dir, workspace_name),
+    string.format("%s/%s.json", workspace_dir, workspace_name:gsub("/", "+")),
+  }
+
+  for _, candidate in ipairs(candidates) do
+    local ok = remove_file(candidate)
+    if ok then
+      deleted = true
+    end
+  end
+
+  local cmd = string.format('find "%s" -maxdepth 1 -type f -name "*.json" 2>/dev/null', workspace_dir)
+  local handle = io.popen(cmd)
+  if handle then
+    for file_path in handle:lines() do
+      if read_saved_workspace_name(file_path) == workspace_name then
+        local ok = remove_file(file_path)
+        if ok then
+          deleted = true
+        end
+      end
+    end
+    handle:close()
+  end
+
+  return deleted
 end
 
 local function collect_workspace_windows(workspace_name)
@@ -62,6 +115,21 @@ local function collect_workspace_windows(workspace_name)
     end
   end
   return windows
+end
+
+local function get_or_create_main_window()
+  for _, mux_window in ipairs(wezterm.mux.all_windows()) do
+    if mux_window:get_workspace() == main_workspace and mux_window:gui_window() then
+      return mux_window:gui_window()
+    end
+  end
+
+  local _, _, mux_window = wezterm.mux.spawn_window({ workspace = main_workspace })
+  if mux_window then
+    return mux_window:gui_window()
+  end
+
+  return nil
 end
 
 local function close_workspace_windows(workspace_windows)
@@ -100,21 +168,11 @@ local function delete_current_workspace(window, pane, resurrect)
 
         local ok, err = pcall(function()
           local workspace_windows = collect_workspace_windows(workspace_name)
-          local notify_window = win
+          local notify_window = get_or_create_main_window() or win
 
-          -- Move the focused pane into a safe workspace first so closing the
-          -- old workspace does not terminate the GUI session.
-          local moved_pane = current_pane
-          if moved_pane then
-            local _, new_mux_window = moved_pane:move_to_new_window(main_workspace)
-            if new_mux_window and new_mux_window:gui_window() then
-              notify_window = new_mux_window:gui_window()
-            end
-          elseif #wezterm.mux.all_windows() == 0 then
-            local _, _, new_mux_window = wezterm.mux.spawn_window({ workspace = main_workspace })
-            if new_mux_window and new_mux_window:gui_window() then
-              notify_window = new_mux_window:gui_window()
-            end
+          local notify_pane = notify_window and notify_window:active_pane() or nil
+          if notify_pane then
+            notify_window:perform_action(act.SwitchToWorkspace({ name = main_workspace }), notify_pane)
           end
 
           close_workspace_windows(workspace_windows)
@@ -123,9 +181,13 @@ local function delete_current_workspace(window, pane, resurrect)
           local main_state = resurrect.workspace_state.get_workspace_state()
           resurrect.state_manager.save_state(main_state)
           resurrect.state_manager.write_current_state(main_state.workspace, "workspace")
-          delete_saved_workspace_state(workspace_name)
+          local deleted_state = delete_saved_workspace_state(workspace_name)
+          local message = "Deleted workspace: " .. workspace_name
+          if not deleted_state then
+            message = message .. " (no saved session file found)"
+          end
 
-          notify_window:toast_notification("WezTerm", "Deleted workspace: " .. workspace_name, nil, 4000)
+          notify_window:toast_notification("WezTerm", message, nil, 4000)
         end)
 
         if not ok then

@@ -38,22 +38,6 @@ local function load_window_size()
   return nil
 end
 
--- Catppuccin Mocha colors
-local colors = {
-  base = "#1e1e2e",
-  mantle = "#181825",
-  surface0 = "#313244",
-  text = "#cdd6f4",
-  mauve = "#cba6f7",
-  blue = "#89b4fa",
-  green = "#a6e3a1",
-  peach = "#fab387",
-  red = "#f38ba8",
-  yellow = "#f9e2af",
-  muted_red = "#53394a",
-  muted_yellow = "#534f3a",
-}
-
 -- Get tab title (prefer explicit title, fallback to process name)
 local function tab_title(tab_info)
   local title = tab_info.tab_title
@@ -68,7 +52,6 @@ function M.setup()
   wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
     local index = tab.tab_index + 1
     local title = tab_title(tab)
-    local server_type = tab.active_pane.user_vars.SERVER_TYPE or ""
 
     -- Truncate title if too long
     local max_title = max_width - 4
@@ -76,31 +59,10 @@ function M.setup()
       title = title:sub(1, max_title - 1) .. "\u{2026}"
     end
 
-    if tab.is_active then
-      local bg = colors.mauve
-      if server_type == "production" then
-        bg = colors.red
-      elseif server_type == "staging" then
-        bg = colors.yellow
-      end
-      return {
-        { Background = { Color = bg } },
-        { Foreground = { Color = colors.base } },
-        { Text = " " .. index .. ": " .. title .. " " },
-      }
-    end
-
-    local bg = hover and colors.surface0 or colors.mantle
-    if server_type == "production" then
-      bg = colors.muted_red
-    elseif server_type == "staging" then
-      bg = colors.muted_yellow
-    end
-    return {
-      { Background = { Color = bg } },
-      { Foreground = { Color = colors.text } },
-      { Text = " " .. index .. ": " .. title .. " " },
-    }
+    -- Return only the label text and let the active color scheme decide the
+    -- tab bar palette. This keeps tab colors in sync with `config.color_scheme`
+    -- and per-user overrides from `local.lua`.
+    return " " .. index .. ": " .. title .. " "
   end)
 
   -- Rename default workspace to "main"

@@ -26,6 +26,18 @@ function M.apply(config)
 
     -- Tab management
     { key = "n", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
+    {
+      key = ",",
+      mods = "LEADER",
+      action = act.PromptInputLine({
+        description = "Enter new tab name (leave empty to reset): ",
+        action = wezterm.action_callback(function(window, pane, line)
+          if line ~= nil then
+            window:active_tab():set_title(line)
+          end
+        end),
+      }),
+    },
     { key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
     { key = "[", mods = "LEADER", action = act.ActivateTabRelative(-1) },
     { key = "]", mods = "LEADER", action = act.ActivateTabRelative(1) },

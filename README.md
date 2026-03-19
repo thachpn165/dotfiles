@@ -442,6 +442,7 @@ Leader: `Ctrl+A` (timeout 2s). Bấm `Ctrl+A` 2 lần để gửi literal `Ctrl+
 | Key | Tác vụ |
 |---|---|
 | `Leader + n` | New tab |
+| `Leader + ,` | Rename current tab (để trống để reset) |
 | `Leader + 1-9` | Switch tab N |
 | `Leader + [` / `Leader + ]` | Prev/next tab |
 

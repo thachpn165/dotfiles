@@ -8,7 +8,7 @@ local leader_state = {}
 
 local function leader_toast(window, pane)
   local msg =
-    "Leader keys: split(|,-) move(hjkl) resize(HJKL) tab(n,[,]) ws(w,W,d) sess(s,r) ssh(g) notes(N) zoom(z) full(f) close(x) help(?)"
+    "Leader keys: split(|,-) move(hjkl) resize(HJKL) tab(n, rename=,) ws(w,W,d) sess(s,r) ssh(g) notes(N) zoom(z) full(f) close(x) help(?)"
   window:toast_notification("WezTerm", msg, nil, 4000)
 end
 
@@ -44,6 +44,7 @@ local function show_help(window, pane)
     { id = "resize_up", label = "Pane: resize up (Leader + K)" },
     { id = "resize_right", label = "Pane: resize right (Leader + L)" },
     { id = "tab_new", label = "Tab: new tab (Leader + n)" },
+    { id = "tab_rename", label = "Tab: rename current (Leader + ,)" },
     { id = "tab_prev", label = "Tab: previous tab (Leader + [)" },
     { id = "tab_next", label = "Tab: next tab (Leader + ])" },
     { id = "close_pane", label = "Pane: close current (Leader + x)" },
@@ -82,6 +83,7 @@ local function show_help(window, pane)
           resize_up = act.AdjustPaneSize({ "Up", 5 }),
           resize_right = act.AdjustPaneSize({ "Right", 5 }),
           tab_new = act.SpawnTab("CurrentPaneDomain"),
+          tab_rename = act.SendKey({ key = ",", mods = "LEADER" }),
           tab_prev = act.ActivateTabRelative(-1),
           tab_next = act.ActivateTabRelative(1),
           close_pane = act.CloseCurrentPane({ confirm = true }),
