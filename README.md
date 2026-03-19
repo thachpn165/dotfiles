@@ -411,6 +411,7 @@ Leader: `Ctrl+A` (timeout 2s). Bấm `Ctrl+A` 2 lần để gửi literal `Ctrl+
 |---|---|
 | `Leader + w` | Workspace switcher |
 | `Leader + W` | Tạo workspace mới |
+| `Leader + d` | Xóa workspace hiện tại (gõ lại tên để xác nhận) |
 | `Leader + s` | Save session |
 | `Leader + r` | Restore session |
 | `Leader + g` | SSH host picker |
@@ -431,7 +432,8 @@ Leader: `Ctrl+A` (timeout 2s). Bấm `Ctrl+A` 2 lần để gửi literal `Ctrl+
 Dùng plugin [resurrect.wezterm](https://github.com/MLFlexer/resurrect.wezterm):
 
 - `Leader + s`: save workspace state
-- `Leader + r`: restore (fuzzy)
+- `Leader + r`: restore session đã lưu
+- `Leader + d`: xóa workspace hiện tại và session file tương ứng (không cho xóa `main`)
 - Auto-save mỗi 5 phút
 
 ### <a id="tro-ly-ai"></a>Trợ lý AI

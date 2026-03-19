@@ -8,7 +8,7 @@ local leader_state = {}
 
 local function leader_toast(window, pane)
   local msg =
-    "Leader keys: split(|,-) move(hjkl) resize(HJKL) tab(n,[,]) ws(w,W) sess(s,r) ssh(g) notes(N) zoom(z) full(f) close(x) help(?)"
+    "Leader keys: split(|,-) move(hjkl) resize(HJKL) tab(n,[,]) ws(w,W,d) sess(s,r) ssh(g) notes(N) zoom(z) full(f) close(x) help(?)"
   window:toast_notification("WezTerm", msg, nil, 4000)
 end
 
@@ -51,6 +51,7 @@ local function show_help(window, pane)
     { id = "fullscreen", label = "Window: fullscreen (Leader + f)" },
     { id = "ws_switch", label = "Workspace: switcher (Leader + w)" },
     { id = "ws_create", label = "Workspace: create (Leader + W)" },
+    { id = "ws_delete", label = "Workspace: delete current (Leader + d)" },
     { id = "sess_save", label = "Session: save (Leader + s)" },
     { id = "sess_restore", label = "Session: restore (Leader + r)" },
     { id = "ssh_picker", label = "Ops: SSH host picker (Leader + g)" },
@@ -98,6 +99,7 @@ local function show_help(window, pane)
         -- so we don't duplicate logic (resurrect, ssh picker, notes, etc).
         local send = {
           ws_create = act.SendKey({ key = "W", mods = "LEADER|SHIFT" }),
+          ws_delete = act.SendKey({ key = "d", mods = "LEADER" }),
           sess_save = act.SendKey({ key = "s", mods = "LEADER" }),
           sess_restore = act.SendKey({ key = "r", mods = "LEADER" }),
           ssh_picker = act.SendKey({ key = "g", mods = "LEADER" }),
@@ -126,4 +128,3 @@ function M.apply(config)
 end
 
 return M
-
