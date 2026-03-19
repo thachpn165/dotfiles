@@ -76,6 +76,9 @@ plugins=(
   fast-syntax-highlighting
 )
 
+# Make autosuggestions readable on translucent terminal backgrounds.
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#a6adc8'
+
 [[ -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 
 # User configuration
