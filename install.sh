@@ -13,10 +13,19 @@ ASSUME_YES=false
 LIST_COMPONENTS_ONLY=false
 ONLY_COMPONENTS=""
 SKIP_COMPONENTS=""
+TTY_DEVICE="/dev/tty"
 
 log() { printf '%s\n' "$*"; }
 warn() { printf 'Warning: %s\n' "$*" >&2; }
 die() { printf 'Error: %s\n' "$*" >&2; exit 1; }
+
+tty_printf() {
+  if [[ -w "$TTY_DEVICE" ]]; then
+    printf '%b' "$1" > "$TTY_DEVICE"
+  else
+    printf '%b' "$1"
+  fi
+}
 
 join_by() {
   local delimiter="$1"
@@ -167,12 +176,12 @@ render_component_menu() {
   local cursor="$1"
   shift
   local -a selected=("$@")
-  local index component mark pointer
+  local index component mark pointer line
 
-  printf '\033[H\033[2J'
-  printf 'Select components to install/update\n'
-  printf 'Use ↑/↓ or j/k to move, Space to toggle, Enter to confirm, a to toggle all, q to cancel.\n'
-  printf 'Selected: %s\n\n' "$(selected_count "${selected[@]}")"
+  tty_printf "$(printf '\033[H\033[2J')"
+  tty_printf "Select components to install/update\n"
+  tty_printf "Use ↑/↓ or j/k to move, Space to toggle, Enter to confirm, a to toggle all, q to cancel.\n"
+  tty_printf "Selected: $(selected_count "${selected[@]}")\n\n"
 
   for index in "${!ALL_COMPONENTS[@]}"; do
     component="${ALL_COMPONENTS[$index]}"
@@ -188,7 +197,8 @@ render_component_menu() {
       pointer=" "
     fi
 
-    printf '%s %s %-12s %s\n' "$pointer" "$mark" "$component" "$(component_description "$component")"
+    printf -v line '%s %s %-12s %s\n' "$pointer" "$mark" "$component" "$(component_description "$component")"
+    tty_printf "$line"
   done
 }
 
@@ -208,16 +218,16 @@ prompt_for_components() {
     fi
   done
 
-  old_stty="$(stty -g)"
-  printf '\033[?25l'
-  stty -echo -icanon time 0 min 1
+  old_stty="$(stty -g < "$TTY_DEVICE")"
+  tty_printf "$(printf '\033[?25l')"
+  stty -echo -icanon time 0 min 1 < "$TTY_DEVICE"
 
   while true; do
     render_component_menu "$cursor" "${selected[@]}"
-    IFS= read -rsn1 key || true
+    IFS= read -rsn1 key < "$TTY_DEVICE" || true
 
     if [[ "$key" == $'\x1b' ]]; then
-      IFS= read -rsn2 rest || true
+      IFS= read -rsn2 rest < "$TTY_DEVICE" || true
       key+="$rest"
     fi
 
@@ -246,7 +256,7 @@ prompt_for_components() {
           done
         fi
         ;;
-      $'\n'|$'\r')
+      ""|$'\n'|$'\r')
         has_selected=false
         SELECTED_COMPONENTS=()
         for index in "${!ALL_COMPONENTS[@]}"; do
@@ -261,15 +271,15 @@ prompt_for_components() {
         fi
         ;;
       q)
-        stty "$old_stty"
-        printf '\033[?25h\033[H\033[2J'
+        stty "$old_stty" < "$TTY_DEVICE"
+        tty_printf "$(printf '\033[?25h\033[H\033[2J')"
         die "Installation cancelled."
         ;;
     esac
   done
 
-  stty "$old_stty"
-  printf '\033[?25h\033[H\033[2J'
+  stty "$old_stty" < "$TTY_DEVICE"
+  tty_printf "$(printf '\033[?25h\033[H\033[2J')"
 }
 
 prompt_for_components_fallback() {
@@ -278,7 +288,7 @@ prompt_for_components_fallback() {
   local input
 
   default_csv="$(join_by "," "${defaults[@]}")"
-  read -r -p "Components to install/update [${default_csv}] (comma-separated, 'all' for everything): " input
+  read -r -p "Components to install/update [${default_csv}] (comma-separated, 'all' for everything): " input < "$TTY_DEVICE"
 
   input="$(normalize_csv "$input")"
   if [[ -z "$input" ]]; then
@@ -330,8 +340,8 @@ resolve_selected_components() {
     done
     SELECTED_COMPONENTS=("${resolved[@]}")
   else
-    if [[ -t 0 && "$ASSUME_YES" == false ]]; then
-      if [[ -t 1 ]]; then
+    if [[ "$ASSUME_YES" == false ]]; then
+      if [[ -r "$TTY_DEVICE" && -w "$TTY_DEVICE" ]]; then
         prompt_for_components "${defaults[@]}"
       else
         prompt_for_components_fallback "${defaults[@]}"
