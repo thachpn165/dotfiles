@@ -51,23 +51,37 @@ Repo này không chỉ có `nvim` và `wezterm`, mà là một bộ workflow tư
 
 ## <a id="cai-nhanh"></a>Cài nhanh
 
+![screenshot-install](screenshot-install.png)
+
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/thachpn165/dotfiles/main/install.sh)
 ```
 
 README này hiện tập trung cho `macOS`.
 
+Script sẽ mở menu chọn component ngay trong terminal: dùng `Space` để bật/tắt, `↑/↓` hoặc `j/k` để di chuyển, rồi `Enter` để xác nhận. Nếu đã từng chạy trước đó, selection cũ sẽ được tick sẵn.
+
+Ví dụ chạy non-interactive:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/thachpn165/dotfiles/main/install.sh) -- --only zsh,nvim,wezterm
+bash <(curl -fsSL https://raw.githubusercontent.com/thachpn165/dotfiles/main/install.sh) -- --skip karabiner,hammerspoon
+```
+
 ## <a id="script-cai-nhanh-se-tu-lam-gi"></a>Script cài nhanh sẽ tự làm gì?
 
-Nếu máy chưa có, `install.sh` sẽ tự xử lý các phần sau:
+Nếu máy chưa có, `install.sh` sẽ tự xử lý các phần sau cho những component bạn chọn:
 
 - Cài [Homebrew](https://brew.sh/).
-- Cài các CLI/common dependencies: `bat`, `eza`, `fastfetch`, `fzf`, `git`, `git-delta`, `glow`, `jq`, `neovim`, `ripgrep`, `stow`, `yazi`, `zoxide`, `zsh`.
-- Cài [Oh My Zsh](https://ohmyz.sh/) nhưng giữ nguyên `~/.zshrc` để dùng file được stow từ repo này.
-- Cài thêm `pngpaste`, [WezTerm](https://wezterm.org/), [Hammerspoon](https://www.hammerspoon.org/), [Karabiner-Elements](https://karabiner-elements.pqrs.org/), [`im-select`](https://github.com/daipeihust/im-select).
+- Cài `git` và `stow` trước, rồi cài thêm dependency đúng theo component được chọn.
+- Nếu chọn `zsh`, script sẽ cài [Oh My Zsh](https://ohmyz.sh/) nhưng giữ nguyên `~/.zshrc` để dùng file được stow từ repo này.
+- Nếu chọn `wezterm` trên macOS, script sẽ cài thêm `pngpaste`, [WezTerm](https://wezterm.org/) và [`im-select`](https://github.com/daipeihust/im-select).
+- Nếu chọn `hammerspoon` hoặc `karabiner` trên macOS, script sẽ cài app tương ứng qua Homebrew Cask.
 - Clone repo vào `~/dotfiles` nếu chưa có; nếu đã có thì `git pull`.
 - Tự init/update git submodules.
 - Backup config cũ sang thư mục dạng `~/.dotfiles-backup-YYYYMMDDHHMMSS/` trước khi stow nếu phát hiện file/folder thật đang tồn tại.
+- Dùng `stow --restow` cho đúng component được chọn, nên có thể chạy lại để update mà không phải relink toàn bộ.
+- Ghi nhớ selection gần nhất để lần rerun sau có thể dùng lại ngay.
 
 Script **không** tự làm các phần sau, bạn vẫn cần cấu hình tay nếu muốn dùng đầy đủ:
 
@@ -98,14 +112,14 @@ Cài các dependency ở mục [Yêu cầu](#yêu-cầu) trước, rồi chạy:
 git clone https://github.com/thachpn165/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 git submodule update --init --recursive
-stow nvim
-stow wezterm
-stow zsh
-stow hammerspoon
-stow git
-stow fastfetch
-stow yazi
-stow karabiner
+stow --restow nvim
+stow --restow wezterm
+stow --restow zsh
+stow --restow hammerspoon
+stow --restow git
+stow --restow fastfetch
+stow --restow yazi
+stow --restow karabiner
 ```
 
 ## <a id="yeu-cau"></a>Yêu cầu
@@ -381,6 +395,16 @@ WezTerm là terminal chính: đẹp, nhanh, có workspace/session, và có vài 
 - Font: Menlo (fallback: MesloLGS Nerd Font Mono)
 - Tab bar dưới đáy, có màu theo server type (prod/staging)
 - Status bar: workspace, SSH host, git user/branch, time
+
+#### Local override cá nhân
+
+Nếu muốn đổi theme/font/opacity riêng mà không sửa repo:
+
+1. Copy `~/.config/wezterm/local.example.lua` thành `~/.config/wezterm/local.lua`
+2. Chỉnh các giá trị trong `local.lua`
+3. Save file, WezTerm sẽ tự reload config
+
+`local.lua` đã được ignore trong git, nên mỗi người có thể giữ cấu hình cá nhân riêng.
 
 ### <a id="phim-tat"></a>Phím tắt
 

@@ -4,3 +4,4 @@ lazy-lock.json
 *.swo
 *~
 *.env
+wezterm/.config/wezterm/local.lua

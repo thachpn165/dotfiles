@@ -12,4 +12,9 @@ require("notes").apply(config)
 require("leader_hints").apply(config)
 require("leader_hints").setup()
 
+local ok, local_override = pcall(require, "local")
+if ok and type(local_override) == "table" and type(local_override.apply) == "function" then
+  local_override.apply(config)
+end
+
 return config
