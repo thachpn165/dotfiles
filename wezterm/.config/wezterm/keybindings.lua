@@ -4,6 +4,10 @@ local act = wezterm.action
 local M = {}
 
 function M.apply(config)
+  -- Use physical key positions for shortcuts so leader bindings remain stable
+  -- when macOS input methods (for example Vietnamese IME) remap characters.
+  config.key_map_preference = "Physical"
+
   -- Leader key: Ctrl+A with 2s timeout
   config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 2000 }
 

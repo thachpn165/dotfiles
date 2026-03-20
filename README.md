@@ -425,6 +425,7 @@ Không cần tải theme repo ngoài nếu theme đó đã có sẵn trong danh 
 ### <a id="phim-tat"></a>Phím tắt
 
 Leader: `Ctrl+A` (timeout 2s). Bấm `Ctrl+A` 2 lần để gửi literal `Ctrl+A` vào terminal.
+WezTerm shortcuts dùng physical key mapping, nên vẫn hoạt động khi bật bộ gõ tiếng Việt trên macOS.
 
 #### <a id="pane"></a>Pane
 
