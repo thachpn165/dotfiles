@@ -1,11 +1,77 @@
+local wezterm = require("wezterm")
 local M = {}
+
+local function get_resolved_scheme(config)
+  local scheme_name = config.color_scheme
+  if config.color_schemes and scheme_name and config.color_schemes[scheme_name] then
+    return config.color_schemes[scheme_name]
+  end
+
+  local builtin_schemes = wezterm.color.get_builtin_schemes()
+  if scheme_name and builtin_schemes[scheme_name] then
+    return builtin_schemes[scheme_name]
+  end
+
+  return wezterm.color.get_default_colors()
+end
+
+local function get_effective_color(config, scheme, key)
+  if config.colors and config.colors[key] then
+    return config.colors[key]
+  end
+
+  if scheme and scheme[key] then
+    return scheme[key]
+  end
+
+  local defaults = wezterm.color.get_default_colors()
+  return defaults[key]
+end
+
+local function derive_split_color(config)
+  if config.colors and config.colors.split then
+    return config.colors.split
+  end
+
+  local scheme = get_resolved_scheme(config)
+  local bg = wezterm.color.parse(get_effective_color(config, scheme, "background"))
+  local _, _, bg_lightness = bg:hsla()
+  local tab_bar = scheme.tab_bar or {}
+  local active_tab = tab_bar.active_tab or {}
+
+  local candidates = {
+    scheme.split,
+    scheme.cursor_border,
+    scheme.cursor_bg,
+    active_tab.bg_color,
+    active_tab.fg_color,
+    get_effective_color(config, scheme, "foreground"),
+  }
+
+  for _, value in ipairs(candidates) do
+    if value then
+      local candidate = wezterm.color.parse(value)
+      if candidate:contrast_ratio(bg) >= 1.8 then
+        return candidate
+      end
+
+      for _, factor in ipairs({ 0.12, 0.2, 0.3, 0.42, 0.55 }) do
+        local adjusted = bg_lightness < 0.5 and candidate:lighten(factor) or candidate:darken(factor)
+        if adjusted:contrast_ratio(bg) >= 1.8 then
+          return adjusted
+        end
+      end
+    end
+  end
+
+  return bg_lightness < 0.5 and bg:lighten(0.72) or bg:darken(0.72)
+end
 
 function M.apply(config)
   -- Color scheme
   config.color_scheme = "Catppuccin Mocha"
 
   -- Font: Menlo with Nerd Font fallback for icons
-  local wezterm = require("wezterm")
   config.font = wezterm.font_with_fallback({
     "Menlo",
     "MesloLGS Nerd Font Mono",
@@ -21,6 +87,12 @@ function M.apply(config)
     right = 10,
     top = 10,
     bottom = 10,
+  }
+
+  -- Slightly boost text brightness so dim ANSI colors stay readable on the
+  -- translucent, blurred background.
+  config.foreground_text_hsb = {
+    brightness = 1.08,
   }
 
   -- Tab bar
@@ -93,6 +165,11 @@ function M.apply(config)
   config.scrollback_lines = 10000
   config.default_cursor_style = "BlinkingBar"
   config.cursor_blink_rate = 500
+end
+
+function M.finalize(config)
+  config.colors = config.colors or {}
+  config.colors.split = derive_split_color(config)
 end
 
 return M

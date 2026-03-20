@@ -17,4 +17,8 @@ if ok and type(local_override) == "table" and type(local_override.apply) == "fun
   local_override.apply(config)
 end
 
+if type(require("appearance").finalize) == "function" then
+  require("appearance").finalize(config)
+end
+
 return config
