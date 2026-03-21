@@ -227,7 +227,7 @@ function M.apply(config)
 
   -- Leader + s: Save current workspace session
   table.insert(config.keys, {
-    key = "s",
+    key = "phys:S",
     mods = "LEADER",
     action = wezterm.action_callback(function(win, pane)
       local ok, result = save_workspace_state(resurrect)
@@ -241,7 +241,7 @@ function M.apply(config)
 
   -- Leader + r: Restore session (fuzzy finder)
   table.insert(config.keys, {
-    key = "r",
+    key = "phys:R",
     mods = "LEADER",
     action = wezterm.action_callback(function(win, pane)
       local choices = list_saved_states()
@@ -307,7 +307,7 @@ function M.apply(config)
   })
 
   table.insert(config.keys, {
-    key = "d",
+    key = "phys:D",
     mods = "LEADER",
     action = wezterm.action_callback(function(window, pane)
       delete_current_workspace(window, pane, resurrect)

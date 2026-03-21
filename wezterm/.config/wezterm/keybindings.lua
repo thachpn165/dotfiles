@@ -9,7 +9,7 @@ function M.apply(config)
   config.key_map_preference = "Physical"
 
   -- Leader key: Ctrl+A with 2s timeout
-  config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 2000 }
+  config.leader = { key = "phys:A", mods = "CTRL", timeout_milliseconds = 2000 }
 
   config.keys = {
     -- Pane splitting
@@ -17,19 +17,19 @@ function M.apply(config)
     { key = "-", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
     -- Pane navigation (vim-style)
-    { key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
-    { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
-    { key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
-    { key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
+    { key = "phys:H", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
+    { key = "phys:J", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
+    { key = "phys:K", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
+    { key = "phys:L", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
 
     -- Pane resizing
-    { key = "H", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Left", 5 }) },
-    { key = "J", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Down", 5 }) },
-    { key = "K", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Up", 5 }) },
-    { key = "L", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Right", 5 }) },
+    { key = "phys:H", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Left", 5 }) },
+    { key = "phys:J", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Down", 5 }) },
+    { key = "phys:K", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Up", 5 }) },
+    { key = "phys:L", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Right", 5 }) },
 
     -- Tab management
-    { key = "n", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
+    { key = "phys:N", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
     {
       key = ",",
       mods = "LEADER",
@@ -42,7 +42,7 @@ function M.apply(config)
         end),
       }),
     },
-    { key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
+    { key = "phys:X", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
     { key = "[", mods = "LEADER", action = act.ActivateTabRelative(-1) },
     { key = "]", mods = "LEADER", action = act.ActivateTabRelative(1) },
 
@@ -58,11 +58,11 @@ function M.apply(config)
     { key = "9", mods = "LEADER", action = act.ActivateTab(8) },
 
     -- Workspace switcher
-    { key = "w", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
+    { key = "phys:W", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 
     -- Create new workspace (Leader + W)
     {
-      key = "W",
+      key = "phys:W",
       mods = "LEADER|SHIFT",
       action = act.PromptInputLine({
         description = wezterm.format({
@@ -78,17 +78,17 @@ function M.apply(config)
     },
 
     -- Zoom & Fullscreen
-    { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
-    { key = "f", mods = "LEADER", action = act.ToggleFullScreen },
+    { key = "phys:Z", mods = "LEADER", action = act.TogglePaneZoomState },
+    { key = "phys:F", mods = "LEADER", action = act.ToggleFullScreen },
 
     -- Command palette
-    { key = "P", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
+    { key = "phys:P", mods = "CTRL|SHIFT", action = act.ActivateCommandPalette },
 
     -- Shift+Enter: send unique escape sequence (zsh binds this to insert newline)
     { key = "Enter", mods = "SHIFT", action = act.SendString("\x1b[13;2u") },
 
     -- Send Ctrl+A to terminal (press Ctrl+A twice)
-    { key = "a", mods = "LEADER|CTRL", action = act.SendKey({ key = "a", mods = "CTRL" }) },
+    { key = "phys:A", mods = "LEADER|CTRL", action = act.SendKey({ key = "a", mods = "CTRL" }) },
   }
 end
 

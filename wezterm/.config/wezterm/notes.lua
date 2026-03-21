@@ -39,7 +39,7 @@ function M.apply(config)
   config.keys = config.keys or {}
 
   table.insert(config.keys, {
-    key = "N",
+    key = "phys:N",
     mods = "LEADER|SHIFT",
     action = wezterm.action_callback(function(window, pane)
       local path = notes_path()

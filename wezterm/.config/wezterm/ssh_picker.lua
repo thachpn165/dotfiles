@@ -55,8 +55,8 @@ local function parse_ssh_config_file(path, set, list)
 
   for line in content:gmatch("[^\r\n]+") do
     -- Strip comments
-    line = line:gsub("%s*#.*$", "")
-    local host_spec = line:match("^%s*[Hh][Oo][Ss][Tt]%s+(.+)$")
+    local cleaned_line = line:gsub("%s*#.*$", "")
+    local host_spec = cleaned_line:match("^%s*[Hh][Oo][Ss][Tt]%s+(.+)$")
     if host_spec then
       for _, token in ipairs(split_ws(host_spec)) do
         if is_real_host(token) then
@@ -144,7 +144,7 @@ function M.apply(config)
   config.keys = config.keys or {}
 
   table.insert(config.keys, {
-    key = "g",
+    key = "phys:G",
     mods = "LEADER",
     action = wezterm.action_callback(function(window, pane)
       local hosts = gather_ssh_hosts()
@@ -188,4 +188,3 @@ function M.apply(config)
 end
 
 return M
-

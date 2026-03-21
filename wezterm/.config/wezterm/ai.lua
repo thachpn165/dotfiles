@@ -8,7 +8,7 @@ function M.apply(config)
 
   -- Ctrl+Shift+A: AI Assistant (opens in bottom pane with IME support)
   table.insert(config.keys, {
-    key = "A",
+    key = "phys:A",
     mods = "CTRL|SHIFT",
     action = wezterm.action_callback(function(window, pane)
       -- Save last 50 lines of terminal output to a temp file for context
