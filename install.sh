@@ -593,6 +593,7 @@ ensure_oh_my_zsh() {
 clone_repo() {
   if [[ -d "$DOTFILES_DIR/.git" ]]; then
     log "dotfiles already exists at $DOTFILES_DIR, pulling latest..."
+    migrate_legacy_shell_bootstrap_files "$DOTFILES_DIR"
     cleanup_legacy_repo_submodules "$DOTFILES_DIR"
     git -C "$DOTFILES_DIR" pull --ff-only
   elif [[ -d "$DOTFILES_DIR" ]]; then
@@ -628,6 +629,34 @@ cleanup_legacy_repo_submodules() {
 
   for path in "${legacy_gitdirs[@]}"; do
     [[ -e "$repo_dir/$path" ]] && rm -rf "$repo_dir/$path"
+  done
+}
+
+migrate_legacy_shell_bootstrap_files() {
+  local repo_dir="$1"
+  local target resolved legacy_backup
+  local -a bootstrap_targets=(
+    "$HOME/.zshenv"
+    "$HOME/.zprofile"
+    "$HOME/.zshrc"
+  )
+
+  for target in "${bootstrap_targets[@]}"; do
+    [[ -L "$target" ]] || continue
+
+    resolved="$(resolve_link_target "$target" 2>/dev/null || true)"
+    if [[ "$resolved" == "$repo_dir"/zsh/* ]]; then
+      legacy_backup=""
+      if [[ -f "$resolved" ]]; then
+        legacy_backup="$target.pre-dotfiles-legacy"
+        if [[ ! -e "$legacy_backup" ]]; then
+          cp "$resolved" "$legacy_backup"
+        fi
+      fi
+
+      rm -f "$target"
+      seed_bootstrap_stub "$target" "$legacy_backup" "$(basename "$target")"
+    fi
   done
 }
 
@@ -676,14 +705,37 @@ resolve_link_target() {
   printf '%s/%s\n' "$dir" "$link"
 }
 
+seed_bootstrap_stub() {
+  local target="$1"
+  local backup_path="$2"
+  local label="$3"
+
+  cat > "$target" <<EOF
+# Migrated from a legacy dotfiles-managed $label symlink.
+# Keep personal shell code above or below the managed source block.
+EOF
+
+  if [[ -n "$backup_path" ]]; then
+    printf '# Previous repo-managed content was backed up to %s\n' "$backup_path" >> "$target"
+  fi
+}
+
 normalize_legacy_bootstrap_file() {
   local target="$1"
   local resolved
+  local legacy_backup=""
 
   if [[ -L "$target" ]]; then
     resolved="$(resolve_link_target "$target" 2>/dev/null || true)"
     if [[ "$resolved" == "$DOTFILES_DIR"/zsh/* ]]; then
+      if [[ -f "$resolved" ]]; then
+        legacy_backup="$target.pre-dotfiles-legacy"
+        if [[ ! -e "$legacy_backup" ]]; then
+          cp "$resolved" "$legacy_backup"
+        fi
+      fi
       rm -f "$target"
+      seed_bootstrap_stub "$target" "$legacy_backup" "$(basename "$target")"
     fi
   fi
 
