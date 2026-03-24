@@ -593,6 +593,7 @@ ensure_oh_my_zsh() {
 clone_repo() {
   if [[ -d "$DOTFILES_DIR/.git" ]]; then
     log "dotfiles already exists at $DOTFILES_DIR, pulling latest..."
+    cleanup_legacy_repo_submodules "$DOTFILES_DIR"
     git -C "$DOTFILES_DIR" pull --ff-only
   elif [[ -d "$DOTFILES_DIR" ]]; then
     die "$DOTFILES_DIR exists but is not a git repository."
@@ -602,8 +603,32 @@ clone_repo() {
   fi
 
   if [[ -f "$DOTFILES_DIR/.gitmodules" ]]; then
+    git -C "$DOTFILES_DIR" submodule sync --recursive
     git -C "$DOTFILES_DIR" submodule update --init --recursive
   fi
+}
+
+cleanup_legacy_repo_submodules() {
+  local repo_dir="$1"
+  local path
+  local -a legacy_worktrees=(
+    "zsh/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
+    "zsh/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    "zsh/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+  )
+  local -a legacy_gitdirs=(
+    ".git/modules/zsh/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
+    ".git/modules/zsh/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    ".git/modules/zsh/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+  )
+
+  for path in "${legacy_worktrees[@]}"; do
+    [[ -e "$repo_dir/$path" ]] && rm -rf "$repo_dir/$path"
+  done
+
+  for path in "${legacy_gitdirs[@]}"; do
+    [[ -e "$repo_dir/$path" ]] && rm -rf "$repo_dir/$path"
+  done
 }
 
 backup_target() {
