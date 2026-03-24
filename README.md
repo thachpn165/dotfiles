@@ -395,13 +395,14 @@ WezTerm là terminal chính: đẹp, nhanh, có workspace/session, và có vài 
 - Font: Menlo (fallback: MesloLGS Nerd Font Mono)
 - Tab bar dưới đáy, có màu theo server type (prod/staging)
 - Status bar: workspace, SSH host, git user/branch, time
+- Tra cứu danh sách theme: [WezTerm Color Schemes](https://wezterm.org/colorschemes/index.html)
 
 #### Local override cá nhân
 
 Nếu muốn đổi theme/font/opacity riêng mà không sửa repo:
 
 1. Copy `~/.config/wezterm/local.example.lua` thành `~/.config/wezterm/local.lua`
-2. Vào danh sách built-in themes của WezTerm tại `https://wezterm.org/colorschemes/index.html`
+2. Vào danh sách built-in themes của WezTerm tại [WezTerm Color Schemes](https://wezterm.org/colorschemes/index.html)
 3. Chọn tên theme muốn dùng rồi sửa `config.color_scheme` trong `local.lua`
 4. Nếu đổi font thì nhớ dùng font đã cài trên máy
 5. Save file, WezTerm sẽ tự reload config
