@@ -630,6 +630,8 @@ cleanup_legacy_repo_submodules() {
   for path in "${legacy_gitdirs[@]}"; do
     [[ -e "$repo_dir/$path" ]] && rm -rf "$repo_dir/$path"
   done
+
+  return 0
 }
 
 migrate_legacy_shell_bootstrap_files() {
@@ -658,6 +660,8 @@ migrate_legacy_shell_bootstrap_files() {
       seed_bootstrap_stub "$target" "$legacy_backup" "$(basename "$target")"
     fi
   done
+
+  return 0
 }
 
 backup_target() {
@@ -689,6 +693,8 @@ cleanup_legacy_zsh_links() {
   for target in "${legacy_targets[@]}"; do
     [[ -L "$target" ]] && rm -f "$target"
   done
+
+  return 0
 }
 
 resolve_link_target() {
