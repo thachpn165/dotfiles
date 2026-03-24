@@ -179,10 +179,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 
 
-# Herd injected PHP 8.4 configuration.
-export HERD_PHP_84_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/84/"
-
-
 # Herd injected NVM configuration
 export NVM_DIR="$HOME/Library/Application Support/Herd/config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -254,17 +250,3 @@ if [[ -o interactive ]] && (( ${+widgets[autosuggest-accept]} )); then
   zle -N _tab_accept_suggestion_or_complete
   bindkey '^I' _tab_accept_suggestion_or_complete
 fi
-
-alias claude-mem='bun "/Users/thachpham/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
-
-
-# Herd injected PHP 8.4 configuration.
-export HERD_PHP_84_INI_SCAN_DIR="/Users/thachpham/Library/Application Support/Herd/config/php/84/"
-
-# pnpm
-export PNPM_HOME="/Users/thachpham/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
