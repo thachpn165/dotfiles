@@ -118,8 +118,7 @@ component_targets() {
       printf '%s\n' "$HOME/.gitconfig"
       ;;
     zsh)
-      printf '%s\n' "$HOME/.zshrc"
-      printf '%s\n' "$HOME/.oh-my-zsh/custom"
+      printf '%s\n' "$HOME/.config/zsh"
       ;;
     nvim)
       printf '%s\n' "$HOME/.config/nvim"
@@ -622,6 +621,98 @@ backup_target() {
   mv "$target" "$dest"
 }
 
+cleanup_legacy_zsh_links() {
+  local target
+  local -a legacy_targets=(
+    "$HOME/.oh-my-zsh/custom/ssh.zsh"
+    "$HOME/.oh-my-zsh/custom/themes/amuse.zsh-theme"
+    "$HOME/.oh-my-zsh/custom/themes/fast-syntax-highlighting-catppuccin-mocha.ini"
+    "$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
+    "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+  )
+
+  for target in "${legacy_targets[@]}"; do
+    [[ -L "$target" ]] && rm -f "$target"
+  done
+}
+
+resolve_link_target() {
+  local target="$1"
+  local link dir
+
+  link="$(readlink "$target")" || return 1
+  if [[ "$link" == /* ]]; then
+    printf '%s\n' "$link"
+    return 0
+  fi
+
+  dir="$(cd "$(dirname "$target")" && pwd -P)"
+  printf '%s/%s\n' "$dir" "$link"
+}
+
+normalize_legacy_bootstrap_file() {
+  local target="$1"
+  local resolved
+
+  if [[ -L "$target" ]]; then
+    resolved="$(resolve_link_target "$target" 2>/dev/null || true)"
+    if [[ "$resolved" == "$DOTFILES_DIR"/zsh/* ]]; then
+      rm -f "$target"
+    fi
+  fi
+
+  [[ -e "$target" ]] || : > "$target"
+}
+
+append_source_block() {
+  local target="$1"
+  local source_file="$2"
+  local label="$3"
+
+  mkdir -p "$(dirname "$target")"
+  normalize_legacy_bootstrap_file "$target"
+
+  if grep -Fqs "$source_file" "$target" 2>/dev/null; then
+    return 0
+  fi
+
+  if [[ -s "$target" ]]; then
+    printf '\n' >> "$target"
+  fi
+
+  cat >> "$target" <<EOF
+# >>> dotfiles $label >>>
+[ -r "$source_file" ] && source "$source_file"
+# <<< dotfiles $label <<<
+EOF
+}
+
+ensure_zsh_bootstrap() {
+  if ! array_contains "zsh" "${SELECTED_COMPONENTS[@]}"; then
+    return 0
+  fi
+
+  mkdir -p "$HOME/.config"
+  cleanup_legacy_zsh_links
+
+  append_source_block "$HOME/.zshenv" "$HOME/.config/zsh/.zshenv" "zshenv"
+  append_source_block "$HOME/.zprofile" "$HOME/.config/zsh/.zprofile" "zprofile"
+  append_source_block "$HOME/.zshrc" "$HOME/.config/zsh/.zshrc" "zshrc"
+
+  if [[ ! -e "$HOME/.config/zshenv.local.zsh" ]]; then
+    cp "$DOTFILES_DIR/zsh/.config/zsh/zshenv.local.example.zsh" "$HOME/.config/zshenv.local.zsh"
+  fi
+
+  if [[ ! -e "$HOME/.config/zprofile.local.zsh" ]]; then
+    cp "$DOTFILES_DIR/zsh/.config/zsh/zprofile.local.example.zsh" "$HOME/.config/zprofile.local.zsh"
+  fi
+
+  if [[ ! -e "$HOME/.config/zsh.local.zsh" ]]; then
+    cp "$DOTFILES_DIR/zsh/.config/zsh/local.example.zsh" "$HOME/.config/zsh.local.zsh"
+  fi
+}
+
 backup_and_stow_selected_packages() {
   local backup_dir
   local backup_created=false
@@ -672,6 +763,7 @@ main() {
   ensure_oh_my_zsh
   clone_repo
   backup_and_stow_selected_packages
+  ensure_zsh_bootstrap
   log "=== Done! ==="
 }
 

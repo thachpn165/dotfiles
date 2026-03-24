@@ -74,7 +74,7 @@ Nếu máy chưa có, `install.sh` sẽ tự xử lý các phần sau cho nhữn
 
 - Cài [Homebrew](https://brew.sh/).
 - Cài `git` và `stow` trước, rồi cài thêm dependency đúng theo component được chọn.
-- Nếu chọn `zsh`, script sẽ cài [Oh My Zsh](https://ohmyz.sh/) nhưng giữ nguyên `~/.zshrc` để dùng file được stow từ repo này.
+- Nếu chọn `zsh`, script sẽ cài [Oh My Zsh](https://ohmyz.sh/), stow `~/.config/zsh/`, rồi append block `source` vào `~/.zshenv`, `~/.zprofile`, `~/.zshrc` nếu chưa có, thay vì ghi đè các file shell sẵn có của user.
 - Nếu chọn `wezterm` trên macOS, script sẽ cài thêm `pngpaste`, [WezTerm](https://wezterm.org/) và [`im-select`](https://github.com/daipeihust/im-select).
 - Nếu chọn `hammerspoon` hoặc `karabiner` trên macOS, script sẽ cài app tương ứng qua Homebrew Cask.
 - Clone repo vào `~/dotfiles` nếu chưa có; nếu đã có thì `git pull`.
@@ -97,7 +97,7 @@ Script **không** tự làm các phần sau, bạn vẫn cần cấu hình tay n
 |---|---|---|
 | `nvim` | `~/.config/nvim/` | stow (symlink) |
 | `wezterm` | `~/.config/wezterm/` | stow (symlink) |
-| `zsh` | `~/.zshrc`, `~/.oh-my-zsh/custom/` | stow (symlink) |
+| `zsh` | `~/.config/zsh/` + block `source` trong `~/.zshenv`, `~/.zprofile`, `~/.zshrc` | `stow` cho phần managed + append idempotent |
 | `hammerspoon` | `~/.hammerspoon/` | stow (symlink) |
 | `git` | `~/.gitconfig` | stow (symlink) |
 | `fastfetch` | `~/.config/fastfetch/` | stow (symlink) |
@@ -120,6 +120,19 @@ stow --restow git
 stow --restow fastfetch
 stow --restow yazi
 stow --restow karabiner
+```
+
+Sau đó thêm các block sau nếu file tương ứng chưa có:
+
+```zsh
+# ~/.zshenv
+[ -r "$HOME/.config/zsh/.zshenv" ] && source "$HOME/.config/zsh/.zshenv"
+
+# ~/.zprofile
+[ -r "$HOME/.config/zsh/.zprofile" ] && source "$HOME/.config/zsh/.zprofile"
+
+# ~/.zshrc
+[ -r "$HOME/.config/zsh/.zshrc" ] && source "$HOME/.config/zsh/.zshrc"
 ```
 
 ## <a id="yeu-cau"></a>Yêu cầu
@@ -260,7 +273,7 @@ Một số plugin ZSH hữu ích mình sử dụng mỗi ngày.
 
 Wrapper `ssh()` sẽ set WezTerm user vars để statusbar/tab title có màu theo môi trường (prod đỏ, staging vàng).
 
-Chỉnh host pattern tại `~/.oh-my-zsh/custom/ssh.zsh`:
+Chỉnh host pattern tại `~/.config/zsh/custom/ssh.zsh`:
 
 ```bash
 SSH_PRODUCTION_HOSTS="prod-server work-prod"
@@ -491,7 +504,7 @@ Thêm API key vào `~/.secrets` (không track git):
 export OPENAI_API_KEY="sk-your-key-here"
 ```
 
-Trong `~/.zshrc`:
+Trong `~/.config/zsh/conf.d/10-editor.zsh`:
 
 ```bash
 [ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
