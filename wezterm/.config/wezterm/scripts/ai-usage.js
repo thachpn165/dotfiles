@@ -7,9 +7,8 @@ const os = require("os");
 const path = require("path");
 const { execFileSync } = require("child_process");
 
-const cwdArg = process.argv[2] || "";
 const cacheFile = path.join(os.tmpdir(), "wezterm-ai-usage-cache.json");
-const cacheTtlMs = 60 * 1000;
+const cacheTtlMs = 5 * 60 * 1000;
 
 function safeRead(filePath, encoding = "utf8") {
   try {
@@ -49,13 +48,13 @@ function fileExists(filePath) {
   }
 }
 
-function readCache() {
+function readCache({ allowStale = false } = {}) {
   const cache = safeReadJson(cacheFile);
-  if (!cache || cache.cwd !== cwdArg) {
+  if (!cache) {
     return null;
   }
 
-  if (Date.now() - cache.timestamp > cacheTtlMs) {
+  if (!allowStale && Date.now() - cache.timestamp > cacheTtlMs) {
     return null;
   }
 
@@ -68,7 +67,6 @@ function writeCache(data) {
       cacheFile,
       JSON.stringify({
         timestamp: Date.now(),
-        cwd: cwdArg,
         data,
       })
     );
@@ -122,6 +120,20 @@ function findLatestFile(rootDir, matcher) {
   }
 
   return latestPath;
+}
+
+function findRecentFiles(rootDir, matcher, limit = 8) {
+  const files = walkFiles(rootDir, matcher)
+    .map((filePath) => {
+      const stat = safeStat(filePath);
+      return stat ? { filePath, mtimeMs: stat.mtimeMs } : null;
+    })
+    .filter(Boolean)
+    .sort((left, right) => right.mtimeMs - left.mtimeMs)
+    .slice(0, limit)
+    .map((entry) => entry.filePath);
+
+  return files;
 }
 
 function readTail(filePath, maxBytes = 1024 * 1024) {
@@ -289,36 +301,45 @@ async function fetchClaudeUsage() {
 
 function getClaudeDebugUsage() {
   const debugDir = path.join(os.homedir(), ".claude", "debug");
-  let latestDebug = path.join(debugDir, "latest");
-  if (!fileExists(latestDebug)) {
-    latestDebug = findLatestFile(debugDir, (filePath) => filePath.endsWith(".txt"));
-  }
-  if (!latestDebug) {
-    return null;
+  const candidates = [];
+  const latestDebug = path.join(debugDir, "latest");
+
+  if (fileExists(latestDebug)) {
+    candidates.push(latestDebug);
   }
 
-  const line = findLastMatchingLine(latestDebug, (candidate) => candidate.includes("autocompact: tokens="));
-  if (!line) {
-    return null;
+  for (const filePath of findRecentFiles(debugDir, (candidate) => candidate.endsWith(".txt"))) {
+    if (!candidates.includes(filePath)) {
+      candidates.push(filePath);
+    }
   }
 
-  const match = line.match(/tokens=(\d+)\s+threshold=(\d+)/);
-  if (!match) {
-    return null;
+  for (const candidate of candidates) {
+    const line = findLastMatchingLine(candidate, (entry) => entry.includes("autocompact: tokens="));
+    if (!line) {
+      continue;
+    }
+
+    const match = line.match(/tokens=(\d+)\s+threshold=(\d+)/);
+    if (!match) {
+      continue;
+    }
+
+    const tokens = Number(match[1]);
+    const threshold = Number(match[2]);
+    if (!Number.isFinite(tokens) || !Number.isFinite(threshold) || threshold <= 0) {
+      continue;
+    }
+
+    return {
+      available: true,
+      label: "Claude",
+      mode: "context",
+      value: `ctx ${Math.round((tokens / threshold) * 100)}%`,
+    };
   }
 
-  const tokens = Number(match[1]);
-  const threshold = Number(match[2]);
-  if (!Number.isFinite(tokens) || !Number.isFinite(threshold) || threshold <= 0) {
-    return null;
-  }
-
-  return {
-    available: true,
-    label: "Claude",
-    mode: "context",
-    value: `${Math.round((tokens / threshold) * 100)}%`,
-  };
+  return null;
 }
 
 async function main() {
@@ -328,12 +349,18 @@ async function main() {
     return;
   }
 
+  const previous = readCache({ allowStale: true }) || {};
+  const codex = getCodexUsage() || previous.codex || null;
+  const fetchedClaude = await fetchClaudeUsage();
+  const claude = fetchedClaude || getClaudeDebugUsage() || previous.claude || null;
   const data = {
-    codex: getCodexUsage(),
-    claude: (await fetchClaudeUsage()) || getClaudeDebugUsage(),
+    codex,
+    claude,
   };
 
-  writeCache(data);
+  if (data.codex || data.claude) {
+    writeCache(data);
+  }
   process.stdout.write(JSON.stringify(data));
 }
 
