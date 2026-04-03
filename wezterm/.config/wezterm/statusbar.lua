@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local ai_usage = require("ai_usage")
 
 local M = {}
 
@@ -186,6 +187,15 @@ function M.setup()
     end
     if branch ~= "" then
       push_right(right, colors.surface0, colors.green, wezterm.nerdfonts.dev_git_branch .. " " .. branch)
+    end
+
+    -- AI tool usage / activity
+    for _, segment in ipairs(ai_usage.get_segments(pane)) do
+      local segment_color = colors.blue
+      if segment.key == "claude" then
+        segment_color = colors.peach
+      end
+      push_right(right, colors.surface0, segment_color, segment.text)
     end
 
     -- Date/time (short format)

@@ -4,7 +4,7 @@ Dotfiles cá nhân, quản lý bằng [GNU Stow](https://www.gnu.org/software/st
 
 Repo này không chỉ có `nvim` và `wezterm`, mà là một bộ workflow tương đối đầy đủ:
 
-- `WezTerm`: giao diện Catppuccin Mocha, nền transparent, tab/status bar đặt lại, hotkey toggle nhanh kiểu dropdown terminal, và trợ lý AI đơn giản qua OpenAI API.
+- `WezTerm`: giao diện Catppuccin Mocha, nền transparent, tab/status bar đặt lại, có AI usage bar cho Codex/Claude, hotkey toggle nhanh kiểu dropdown terminal, và trợ lý AI đơn giản qua OpenAI API.
 - `Neovim`: LazyVim + các plugin phục vụ code, note, và xử lý IME để gõ tiếng Việt không phá `Normal Mode`.
 - `Hammerspoon`: hotkey toàn hệ thống để bật/tắt WezTerm và quản lý cửa sổ nhanh.
 - `Karabiner`: remap `Caps Lock` thành `Hyper` và thêm bộ điều hướng/phím chọn kiểu Vim cho toàn hệ thống.
@@ -45,6 +45,7 @@ Repo này không chỉ có `nvim` và `wezterm`, mà là một bộ workflow tư
       - [Khac](#khac)
     - [Quản lý session](#quản-lý-session)
     - [Trợ lý AI](#trợ-lý-ai)
+      - [AI Usage trên Status Bar](#ai-usage-trên-status-bar)
       - [Cài đặt](#cài-đặt)
       - [Sử dụng](#sử-dụng)
     - [Cấu trúc config](#cấu-trúc-config)
@@ -407,7 +408,7 @@ WezTerm là terminal chính: đẹp, nhanh, có workspace/session, và có vài 
 - Theme: Catppuccin Mocha (opacity 0.7, blur 20)
 - Font: Menlo (fallback: MesloLGS Nerd Font Mono)
 - Tab bar dưới đáy, có màu theo server type (prod/staging)
-- Status bar: workspace, SSH host, git user/branch, time
+- Status bar: workspace, SSH host, git user/branch, AI usage của Codex/Claude, time
 - Tra cứu danh sách theme: [WezTerm Color Schemes](https://wezterm.org/colorschemes/index.html)
 
 #### Local override cá nhân
@@ -496,6 +497,24 @@ Dùng plugin [resurrect.wezterm](https://github.com/MLFlexer/resurrect.wezterm):
 
 Trợ lý AI trong WezTerm hoạt động kiểu "Warp-lite": nó lấy 50 dòng output gần nhất, hỏi bạn, trả lời, và nếu có command thì cho chọn để gửi thẳng sang pane chính.
 
+#### <a id="ai-usage-tren-status-bar"></a>AI Usage trên Status Bar
+
+Status bar có thêm 2 segment cho `Codex` và `Claude`.
+
+- `Codex 11%/45%`: usage của 2 cửa sổ quota local mà Codex ghi trong session log
+- Vế đầu là `primary` trong `300 phút` (khoảng `5 giờ`)
+- Vế sau là `secondary` trong `10080 phút` (khoảng `7 ngày`)
+- `Claude 6%/1%`: usage lấy từ Claude OAuth usage API
+- Vế đầu là `five_hour`
+- Vế sau là `seven_day`
+
+Nguồn dữ liệu:
+
+- Codex: đọc từ `~/.codex/sessions/...jsonl`
+- Claude: gọi `https://api.anthropic.com/api/oauth/usage` bằng credential local của Claude Code
+
+Dữ liệu được cache ngắn hạn rồi mới render lại để status bar không bị lag khi WezTerm refresh.
+
 #### <a id="cai-dat"></a>Cài đặt
 
 Thêm API key vào `~/.secrets` (không track git):
@@ -532,7 +551,8 @@ Ghi chú:
 ├── wezterm.lua        # entrypoint
 ├── appearance.lua     # theme, font, blur, tab bar
 ├── keybindings.lua    # leader key, pane/tab/workspace
-├── statusbar.lua      # SSH host, git user/branch, time
+├── statusbar.lua      # SSH host, git user/branch, AI usage, time
+├── ai_usage.lua       # load/cache usage segments for status bar
 ├── events.lua         # tab title formatting, startup, window size
 ├── workspaces.lua     # session save/restore (resurrect)
 ├── ai.lua             # AI assistant launcher
@@ -541,5 +561,6 @@ Ghi chú:
 ├── notes.lua          # scratch notes
 ├── leader_hints.lua   # hint leader (toast + picker)
 └── scripts/
-    └── ai-ask.sh      # AI shell script (OpenAI API)
+    ├── ai-ask.sh      # AI shell script (OpenAI API)
+    └── ai-usage.js    # probe Codex/Claude usage cho status bar
 ```
