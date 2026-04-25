@@ -7,7 +7,7 @@ Repo này không chỉ có `nvim` và `wezterm`, mà là một bộ workflow tư
 - `WezTerm`: giao diện Catppuccin Mocha, nền transparent, tab/status bar đặt lại, có AI usage bar cho Codex/Claude, hotkey toggle nhanh kiểu dropdown terminal, và trợ lý AI đơn giản qua OpenAI API.
 - `Neovim`: LazyVim + các plugin phục vụ code, note, và xử lý IME để gõ tiếng Việt không phá `Normal Mode`.
 - `Hammerspoon`: hotkey toàn hệ thống để bật/tắt WezTerm và quản lý cửa sổ nhanh.
-- `Karabiner`: remap `Caps Lock` thành `Hyper` và thêm bộ điều hướng/phím chọn kiểu Vim cho toàn hệ thống.
+- `Karabiner`: hoán đổi `Caps Lock`/`Left Control`, thêm `vim navigation mode` bật/tắt bằng `d+f`, và hỗ trợ bàn phím 60% qua cơ chế `grave -> Escape` khi đang ở navigation mode.
 - `Zsh`, `Yazi`, `Git`, `fastfetch`: tối ưu shell workflow, di chuyển thư mục nhanh, file manager trong terminal, và trải nghiệm CLI hằng ngày.
 
 ![screenshot](screenshot.png)
@@ -225,24 +225,33 @@ stow karabiner
 
 Sau đó mở `Karabiner-Elements` để app reload config, hoặc thoát/mở lại app nếu chưa nhận file mới.
 
+Nếu trước đó bạn từng sửa config trực tiếp trong `Karabiner-Elements`, file thật ở `~/.config/karabiner/karabiner.json` có thể đã không còn là symlink về repo này nữa. Khi đó `stow karabiner` hoặc `stow --restow karabiner` là cách đồng bộ lại; nếu vẫn không ăn thì kiểm tra lại bằng:
+
+```bash
+ls -l ~/.config/karabiner/karabiner.json
+```
+
+Nếu output không trỏ về repo này, Karabiner đang dùng file local tách riêng và các thay đổi trong repo sẽ không tự load.
+
 ### Keymap hiện tại
 
 - `simple_modifications` đang hoán đổi 2 phím vật lý: `Caps Lock -> Left Control` và `Left Control -> Caps Lock`.
 - Vì có bước hoán đổi này, phím `Left Control` vật lý mới là phím kích hoạt `Hyper` (`Cmd+Ctrl+Option+Shift`) trong các `complex_modifications`.
 - Phím `Caps Lock` vật lý hiện hoạt động như `Left Control`.
-- Hiểu theo cách bấm thực tế:
-  - Bấm phím `Left Control` vật lý sẽ được Karabiner nhìn như `caps_lock`.
-  - Từ đó rule `caps_lock -> Hyper` mới được kích hoạt.
-  - Bấm phím `Caps Lock` vật lý thì hệ thống nhận như `Left Control` bình thường.
-- Ví dụ:
-  - `Left Control + h` vật lý sẽ thành `Hyper + h`, sau đó map ra `Left Arrow`.
-  - `Left Control + j/k/l` vật lý sẽ lần lượt thành `Down/Up/Right Arrow`.
-  - `Caps Lock` vật lý không phải là phím `Hyper` trong cấu hình hiện tại.
-- `Hyper + h/j/k/l` thành mũi tên trái/xuống/lên/phải.
-- `Hyper + u/d` thành `Page Up` / `Page Down`.
-- `Hyper + a/e` thành `Home` / `End`.
-- `Hyper + w/b` chọn theo từ sang phải / trái.
-- `Hyper + Space` clear vùng chọn bằng cách di chuyển sang phải một ký tự.
+- `Hyper` vẫn còn trong config, nhưng không còn là cách chính để điều hướng.
+- Điều hướng hiện tại dùng `vim_navigation_mode`, bật/tắt bằng cách bấm đồng thời `d + f`.
+- Trong mode này:
+  - `h/j/k/l` -> `Left/Down/Up/Right`
+  - `u/d` -> `Page Up/Page Down`
+  - `a/e` -> `Home/End`
+  - `w/b` -> nhảy theo từ phải/trái (`Option + Arrow`)
+  - `Shift + h/j/k/l` -> chọn theo hướng
+  - `Shift + w/b` -> chọn theo từ
+  - `Shift + a/e` -> chọn tới đầu/cuối dòng
+  - `Space` hoặc `Enter` -> thoát mode và gõ phím tương ứng
+  - `grave_accent_and_tilde` -> gửi `Escape` và thoát mode
+- Thiết kế này hữu ích khi đổi giữa nhiều bàn phím khác nhau, nhất là layout 60%/HHKB-like, nơi không phải lúc nào cũng có `Ctrl`, `Alt` hoặc `grave` ở vị trí quen thuộc.
+- Nếu bạn tự thêm `simple_modifications` kiểu `Escape -> grave_accent_and_tilde`, thì trong `vim_navigation_mode` phím đang ra `` ` `` sẽ trở lại `Escape`.
 
 ---
 
